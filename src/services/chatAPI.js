@@ -13,7 +13,7 @@ class ChatAPI {
    * @param {string} threadId - Thread ID for conversation context
    * @returns {Promise<{response: string, carData?: Array}>} - Response with optional car data
    */
-  async sendMessage(message, onChunk = null, threadId = "1") {
+  async sendMessage(message, onChunk = null, threadId = "8") {
     try {
       const response = await fetch(`${this.baseURL}/api/v1/chat/ask`, {
         method: 'POST',

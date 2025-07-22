@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Image Display</title>
+</head>
+<body>
+    <div id="car-container">
+        <h2>Car Image Display</h2>
+        <div id="image-container"></div>
+    </div>
+
+    <script>
+        const BASE_URL = "http://localhost:8070";
+        
+        // Example car object - replace with your actual car data
+        const car = {
+            image_url: "/uploads/aqua.jpg", // Replace with actual image path
+            make: "Toyota",
+            model: "Camry"
+        };
+
+        const imageUrl = BASE_URL + car.image_url;
+        
+        // Create and display the image
+        const imageContainer = document.getElementById('image-container');
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = `Image of ${car.make} ${car.model}`;
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.border = '1px solid #ccc';
+        img.style.borderRadius = '8px';
+        
+        // Handle image load error
+        img.onerror = function() {
+            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
+            this.alt = 'Image not found';
+        };
+        
+        imageContainer.appendChild(img);
+        
+        // Display car info
+        const carInfo = document.createElement('p');
+        carInfo.textContent = `Car: ${car.make} ${car.model}`;
+        carInfo.style.marginTop = '10px';
+        carInfo.style.fontFamily = 'Arial, sans-serif';
+        imageContainer.appendChild(carInfo);
+        
+        // Display image URL for debugging
+        const urlInfo = document.createElement('p');
+        urlInfo.textContent = `Image URL: ${imageUrl}`;
+        urlInfo.style.fontSize = '12px';
+        urlInfo.style.color = '#666';
+        urlInfo.style.fontFamily = 'monospace';
+        imageContainer.appendChild(urlInfo);
+    </script>
+</body>
+</html>

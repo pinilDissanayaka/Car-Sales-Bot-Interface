@@ -67,16 +67,36 @@ export function useChat() {
       
       console.log('Bot response received:', botResponse);
       
-      // Extract response text from the response object
-      const responseText = typeof botResponse === 'string' ? botResponse : botResponse.response;
+      // Extract response text and car data from the response object
+      let responseText = '';
+      let carData = null;
       
-      console.log('Extracted response text:', responseText);
+      if (typeof botResponse === 'string') {
+        responseText = botResponse;
+      } else if (botResponse.response) {
+        // Check if response is a JSON string that needs parsing
+        if (typeof botResponse.response === 'string' && botResponse.response.startsWith('{')) {
+          try {
+            const parsedResponse = JSON.parse(botResponse.response);
+            responseText = parsedResponse.response || botResponse.response;
+            carData = parsedResponse.car_data || null;
+            console.log('Parsed response text:', responseText);
+            console.log('Extracted car data:', carData);
+          } catch (error) {
+            console.warn('Failed to parse response JSON:', error);
+            responseText = botResponse.response;
+          }
+        } else {
+          responseText = botResponse.response;
+          carData = botResponse.carData || null;
+        }
+      }
       
       // Handle car data if present
-      if (botResponse.carData && botResponse.carData.length > 0) {
-        console.log('Received car data:', botResponse.carData);
+      if (carData && Array.isArray(carData) && carData.length > 0) {
+        console.log('Received car data:', carData);
         // Update message with both response text and car data
-        updateMessage(botMessageId, responseText, false, botResponse.carData)
+        updateMessage(botMessageId, responseText, false, carData)
       } else {
         // Mark streaming as complete without car data
         updateMessage(botMessageId, responseText, false)
