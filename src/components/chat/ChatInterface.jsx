@@ -3,7 +3,9 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer'
 import { ApiCarCard } from '@/components/car/ApiCarCard'
+import { CarSwiper } from '@/components/car/CarSwiper'
 import { ImageSwiper } from '@/components/ui/ImageSwiper'
+import { VehicleTrackingMap } from '@/components/ui/VehicleTrackingMap'
 import { Send, Bot, User, AlertCircle } from 'lucide-react'
 
 export function ChatInterface({ messages, onSendMessage, isTyping, connectionError }) {
@@ -112,6 +114,19 @@ export function ChatInterface({ messages, onSendMessage, isTyping, connectionErr
                           </div>
                         )}
                         
+                        {/* Vehicle Tracking Map */}
+                        {message.mapData && (
+                          <div className="mt-4 space-y-4">
+                            <div className="text-sm font-medium text-gray-700 mb-3">
+                              Vehicle Tracking Information:
+                            </div>
+                            <VehicleTrackingMap 
+                              mapData={message.mapData}
+                              title="Vehicle Delivery Tracking"
+                            />
+                          </div>
+                        )}
+                        
                         {/* Car Cards */}
                         {message.carData && message.carData.length > 0 && (
                           <div className="mt-4 space-y-4">
@@ -121,19 +136,14 @@ export function ChatInterface({ messages, onSendMessage, isTyping, connectionErr
                                 : `Here are ${message.carData.length} cars that match your criteria:`
                               }
                             </div>
-                            <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-                              {message.carData.map((car, index) => (
-                                <ApiCarCard
-                                  key={`${message.id}-car-${index}`}
-                                  carData={car}
-                                  onInquire={(carData) => {
-                                    // Handle car inquiry - send a message about this specific car
-                                    const inquiryText = `Tell me more about this ${carData.year || ''} ${carData.make || ''} ${carData.model || ''} ${carData.price ? `priced at $${carData.price}` : ''}`.trim();
-                                    onSendMessage(inquiryText);
-                                  }}
-                                />
-                              ))}
-                            </div>
+                            <CarSwiper 
+                              cars={message.carData}
+                              onCarInquiry={(carData) => {
+                                // Handle car inquiry - send a message about this specific car
+                                const inquiryText = `Tell me more about this ${carData.year || ''} ${carData.make || ''} ${carData.model || ''} ${carData.price ? `priced at $${carData.price}` : ''}`.trim();
+                                onSendMessage(inquiryText);
+                              }}
+                            />
                           </div>
                         )}
                       </div>

@@ -295,3 +295,65 @@ button:hover {
     background-position: -200% 0;
   }
 }
+
+/* Car swiper specific styles */
+.car-swiper-container {
+  height: auto;
+  min-height: 500px;
+}
+
+.car-swiper-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.car-swiper-card .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.car-swiper-card .card-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.car-swiper-card .card-button {
+  margin-top: auto;
+}
+
+/* Text truncation utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Button text wrapping fix */
+.btn-text-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Equal height cards in swiper */
+.equal-height-cards {
+  display: flex;
+  align-items: stretch;
+}
+
+.equal-height-cards > * {
+  flex: 1;
+}

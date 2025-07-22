@@ -16,7 +16,7 @@ export function useChat() {
   const [streamingMessageId, setStreamingMessageId] = useState(null)
   const [threadId] = useState(() => `thread_${Date.now()}`) // Generate unique thread ID
 
-  const addMessage = useCallback((type, content, isStreaming = false, carData = null, vehicleImages = null) => {
+  const addMessage = useCallback((type, content, isStreaming = false, carData = null, vehicleImages = null, mapData = null) => {
     const newMessage = {
       id: Date.now() + Math.random(), // Unique ID for streaming updates
       type,
@@ -24,13 +24,14 @@ export function useChat() {
       isStreaming,
       carData, // Add car data to message
       vehicleImages, // Add vehicle images to message
+      mapData, // Add map data to message
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
     setMessages(prev => [...prev, newMessage])
     return newMessage.id
   }, [])
 
-  const updateMessage = useCallback((messageId, content, isStreaming = false, carData = null, vehicleImages = null) => {
+  const updateMessage = useCallback((messageId, content, isStreaming = false, carData = null, vehicleImages = null, mapData = null) => {
     setMessages(prev => 
       prev.map(msg => 
         msg.id === messageId 
@@ -39,7 +40,8 @@ export function useChat() {
               content, 
               isStreaming, 
               ...(carData && { carData }),
-              ...(vehicleImages && { vehicleImages })
+              ...(vehicleImages && { vehicleImages }),
+              ...(mapData && { mapData })
             }
           : msg
       )
@@ -78,6 +80,7 @@ export function useChat() {
       let responseText = '';
       let carData = null;
       let vehicleImages = null;
+      let mapData = null;
       
       if (typeof botResponse === 'string') {
         responseText = botResponse;
@@ -89,29 +92,36 @@ export function useChat() {
             responseText = parsedResponse.response || botResponse.response;
             carData = parsedResponse.car_data || null;
             vehicleImages = parsedResponse.vehicle_images || null;
+            mapData = parsedResponse.map_data || null;
             console.log('Parsed response text:', responseText);
             console.log('Extracted car data:', carData);
             console.log('Extracted vehicle images:', vehicleImages);
+            console.log('Extracted map data:', mapData);
           } catch (error) {
             console.warn('Failed to parse response JSON:', error);
             responseText = botResponse.response;
           }
         } else {
           responseText = botResponse.response;
-          carData = botResponse.carData || null;
+          carData = botResponse.carData || botResponse.car_data || null;
           vehicleImages = botResponse.vehicle_images || null;
+          mapData = botResponse.map_data || null;
         }
       }
       
-      // Handle car data and vehicle images if present
+      // Handle car data, vehicle images, and map data if present
       if (carData && Array.isArray(carData) && carData.length > 0) {
         console.log('Received car data:', carData);
-        // Update message with response text, car data, and vehicle images
-        updateMessage(botMessageId, responseText, false, carData, vehicleImages)
+        // Update message with response text, car data, vehicle images, and map data
+        updateMessage(botMessageId, responseText, false, carData, vehicleImages, mapData)
       } else if (vehicleImages && Array.isArray(vehicleImages) && vehicleImages.length > 0) {
         console.log('Received vehicle images:', vehicleImages);
-        // Update message with response text and vehicle images only
-        updateMessage(botMessageId, responseText, false, null, vehicleImages)
+        // Update message with response text, vehicle images, and map data
+        updateMessage(botMessageId, responseText, false, null, vehicleImages, mapData)
+      } else if (mapData) {
+        console.log('Received map data:', mapData);
+        // Update message with response text and map data only
+        updateMessage(botMessageId, responseText, false, null, null, mapData)
       } else {
         // Mark streaming as complete without additional data
         updateMessage(botMessageId, responseText, false)
