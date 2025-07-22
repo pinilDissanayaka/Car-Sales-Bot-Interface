@@ -16,24 +16,31 @@ export function useChat() {
   const [streamingMessageId, setStreamingMessageId] = useState(null)
   const [threadId] = useState(() => `thread_${Date.now()}`) // Generate unique thread ID
 
-  const addMessage = useCallback((type, content, isStreaming = false, carData = null) => {
+  const addMessage = useCallback((type, content, isStreaming = false, carData = null, vehicleImages = null) => {
     const newMessage = {
       id: Date.now() + Math.random(), // Unique ID for streaming updates
       type,
       content,
       isStreaming,
       carData, // Add car data to message
+      vehicleImages, // Add vehicle images to message
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
     setMessages(prev => [...prev, newMessage])
     return newMessage.id
   }, [])
 
-  const updateMessage = useCallback((messageId, content, isStreaming = false, carData = null) => {
+  const updateMessage = useCallback((messageId, content, isStreaming = false, carData = null, vehicleImages = null) => {
     setMessages(prev => 
       prev.map(msg => 
         msg.id === messageId 
-          ? { ...msg, content, isStreaming, ...(carData && { carData }) }
+          ? { 
+              ...msg, 
+              content, 
+              isStreaming, 
+              ...(carData && { carData }),
+              ...(vehicleImages && { vehicleImages })
+            }
           : msg
       )
     )
@@ -67,9 +74,10 @@ export function useChat() {
       
       console.log('Bot response received:', botResponse);
       
-      // Extract response text and car data from the response object
+      // Extract response text, car data, and vehicle images from the response object
       let responseText = '';
       let carData = null;
+      let vehicleImages = null;
       
       if (typeof botResponse === 'string') {
         responseText = botResponse;
@@ -80,8 +88,10 @@ export function useChat() {
             const parsedResponse = JSON.parse(botResponse.response);
             responseText = parsedResponse.response || botResponse.response;
             carData = parsedResponse.car_data || null;
+            vehicleImages = parsedResponse.vehicle_images || null;
             console.log('Parsed response text:', responseText);
             console.log('Extracted car data:', carData);
+            console.log('Extracted vehicle images:', vehicleImages);
           } catch (error) {
             console.warn('Failed to parse response JSON:', error);
             responseText = botResponse.response;
@@ -89,16 +99,21 @@ export function useChat() {
         } else {
           responseText = botResponse.response;
           carData = botResponse.carData || null;
+          vehicleImages = botResponse.vehicle_images || null;
         }
       }
       
-      // Handle car data if present
+      // Handle car data and vehicle images if present
       if (carData && Array.isArray(carData) && carData.length > 0) {
         console.log('Received car data:', carData);
-        // Update message with both response text and car data
-        updateMessage(botMessageId, responseText, false, carData)
+        // Update message with response text, car data, and vehicle images
+        updateMessage(botMessageId, responseText, false, carData, vehicleImages)
+      } else if (vehicleImages && Array.isArray(vehicleImages) && vehicleImages.length > 0) {
+        console.log('Received vehicle images:', vehicleImages);
+        // Update message with response text and vehicle images only
+        updateMessage(botMessageId, responseText, false, null, vehicleImages)
       } else {
-        // Mark streaming as complete without car data
+        // Mark streaming as complete without additional data
         updateMessage(botMessageId, responseText, false)
       }
       

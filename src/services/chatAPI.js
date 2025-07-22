@@ -115,13 +115,18 @@ class ChatAPI {
       // Handle non-streaming response
       const data = await response.json();
       
-      // Handle ChatResponse format: { response: str, car_data: List[Dict] }
+      // Handle ChatResponse format: { response: str, car_data: List[Dict], vehicle_images: List[str] }
       if (data && typeof data === 'object' && data.response) {
         const result = { response: data.response };
         
         if (data.car_data && Array.isArray(data.car_data) && data.car_data.length > 0) {
           result.carData = data.car_data;
           console.log('Car data received:', data.car_data);
+        }
+        
+        if (data.vehicle_images && Array.isArray(data.vehicle_images) && data.vehicle_images.length > 0) {
+          result.vehicle_images = data.vehicle_images;
+          console.log('Vehicle images received:', data.vehicle_images);
         }
         
         return result;
@@ -136,6 +141,10 @@ class ChatAPI {
             if (parsedData.car_data && Array.isArray(parsedData.car_data) && parsedData.car_data.length > 0) {
               result.carData = parsedData.car_data;
               console.log('Car data received:', parsedData.car_data);
+            }
+            if (parsedData.vehicle_images && Array.isArray(parsedData.vehicle_images) && parsedData.vehicle_images.length > 0) {
+              result.vehicle_images = parsedData.vehicle_images;
+              console.log('Vehicle images received:', parsedData.vehicle_images);
             }
             return result;
           }

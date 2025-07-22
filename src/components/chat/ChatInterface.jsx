@@ -3,6 +3,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer'
 import { ApiCarCard } from '@/components/car/ApiCarCard'
+import { ImageSwiper } from '@/components/ui/ImageSwiper'
 import { Send, Bot, User, AlertCircle } from 'lucide-react'
 
 export function ChatInterface({ messages, onSendMessage, isTyping, connectionError }) {
@@ -92,6 +93,22 @@ export function ChatInterface({ messages, onSendMessage, isTyping, connectionErr
                         {message.isStreaming && (
                           <div className="inline-flex items-center ml-1">
                             <div className="w-1 h-4 bg-blue-500 animate-pulse"></div>
+                          </div>
+                        )}
+                        
+                        {/* Vehicle Images */}
+                        {message.vehicleImages && message.vehicleImages.length > 0 && (
+                          <div className="mt-4 space-y-4">
+                            <div className="text-sm font-medium text-gray-700 mb-3">
+                              {message.vehicleImages.length === 1 
+                                ? 'Vehicle Image:' 
+                                : `Vehicle Images (${message.vehicleImages.length}):`
+                              }
+                            </div>
+                            <ImageSwiper 
+                              images={message.vehicleImages} 
+                              alt="Vehicle"
+                            />
                           </div>
                         )}
                         

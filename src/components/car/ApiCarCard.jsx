@@ -6,6 +6,8 @@ import { Car, Fuel, Calendar, MapPin, Phone } from 'lucide-react'
 export function ApiCarCard({ carData, onInquire }) {
   if (!carData) return null;
 
+  const BASE_URL = 'http://localhost:8070';
+
   // Handle various possible field names from the API
   const {
     make = carData.brand || carData.manufacturer || 'Unknown',
@@ -18,10 +20,21 @@ export function ApiCarCard({ carData, onInquire }) {
     transmission = carData.transmission || carData.gearbox || 'Automatic',
     location = carData.location || carData.city || carData.address,
     contact = carData.contact || carData.phone || carData.seller_contact,
-    image = carData.image || carData.photo || carData.image_url || carData.img_url,
     features = carData.features || carData.options || [],
     description = carData.description || carData.details
   } = carData;
+
+  // Handle image URL properly
+  const getImageUrl = () => {
+    // Check for image_url first (from API)
+    if (carData.image_url) {
+      return BASE_URL + carData.image_url;
+    }
+    // Fallback to other image properties
+    return carData.image || carData.photo || carData.img_url || null;
+  };
+
+  const image = getImageUrl();
 
   const formatPrice = (price) => {
     if (!price) return 'Price on request';

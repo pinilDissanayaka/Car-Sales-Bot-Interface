@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Car, Fuel, Calendar, Settings, Heart, MessageSquare } from 'lucide-react'
 
 export function CarCard({ car, onInquire, onFavorite, isFavorite }) {
-  const BASE_URL = 'http://localhost:8070/';
+  const BASE_URL = 'http://localhost:8070';
   
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
@@ -16,8 +16,9 @@ export function CarCard({ car, onInquire, onFavorite, isFavorite }) {
   const getImageUrl = (car) => {
     // If car has image_url property (from API), construct full URL
     if (car.image_url) {
-      console.log('Using car.image_url:', BASE_URL + car.image_url);
-      return  BASE_URL +car.image_url;
+      const fullUrl = BASE_URL + car.image_url;
+      console.log('Using car.image_url:', fullUrl);
+      return fullUrl;
     }
     // Fallback to existing image property or placeholder
     return car.image || '/api/placeholder/400/250';
