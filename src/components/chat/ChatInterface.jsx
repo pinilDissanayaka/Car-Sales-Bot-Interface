@@ -118,7 +118,6 @@ export function ChatInterface({ messages, onSendMessage, isTyping, connectionErr
                         {message.mapData && (
                           <div className="mt-4 space-y-4">
                             <div className="text-sm font-medium text-gray-700 mb-3">
-                              Vehicle Tracking Information:
                             </div>
                             <VehicleTrackingMap 
                               mapData={message.mapData}
