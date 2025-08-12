@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 
 export function ImageSwiper({ images, alt = "Vehicle image" }) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const BASE_URL = 'http://localhost:8070'
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   if (!images || images.length === 0) {
     return null
@@ -33,8 +33,7 @@ export function ImageSwiper({ images, alt = "Vehicle image" }) {
             alt={`${alt} ${currentIndex + 1}`}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4='
-              e.target.alt = 'Image not found'
+              e.target.src = '/api/placeholder/400/300'
             }}
           />
           
@@ -54,6 +53,9 @@ export function ImageSwiper({ images, alt = "Vehicle image" }) {
                 src={getImageUrl(images[currentIndex])}
                 alt={`${alt} ${currentIndex + 1} - Full size`}
                 className="w-full h-auto max-h-[80vh] object-contain"
+                onError={(e) => {
+                  e.target.src = '/api/placeholder/800/600'
+                }}
               />
             </DialogContent>
           </Dialog>
@@ -108,7 +110,7 @@ export function ImageSwiper({ images, alt = "Vehicle image" }) {
                 alt={`${alt} ${index + 1} thumbnail`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2RkZCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltZzwvdGV4dD48L3N2Zz4='
+                  e.target.src = '/api/placeholder/64/48'
                 }}
               />
             </button>

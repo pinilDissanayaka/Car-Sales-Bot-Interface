@@ -10,11 +10,10 @@ import {
   Car,
   Search,
   Eye,
-  Heart,
   Zap
 } from 'lucide-react'
 
-export function TrendingSection({ cars, favorites, onCarInquire, onToggleFavorite }) {
+export function TrendingSection({ cars, onCarInquire }) {
   const [priceRange, setPriceRange] = useState({ min: '', max: '' })
   
   // Calculate trending data
@@ -162,19 +161,6 @@ export function TrendingSection({ cars, favorites, onCarInquire, onToggleFavorit
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onToggleFavorite(car.id)}
-                  >
-                    <Heart 
-                      className={`h-4 w-4 ${
-                        favorites.includes(car.id) 
-                          ? 'text-red-500 fill-current' 
-                          : 'text-muted-foreground'
-                      }`} 
-                    />
-                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"

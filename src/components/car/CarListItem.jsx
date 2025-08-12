@@ -6,7 +6,6 @@ import {
   Fuel, 
   Calendar, 
   Settings, 
-  Heart, 
   MessageSquare,
   Eye,
   Phone,
@@ -14,7 +13,7 @@ import {
   Star
 } from 'lucide-react'
 
-export function CarListItem({ car, onInquire, onFavorite, isFavorite }) {
+export function CarListItem({ car, onInquire }) {
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -32,16 +31,6 @@ export function CarListItem({ car, onInquire, onFavorite, isFavorite }) {
             alt={`${car.make} ${car.model}`}
             className="w-full h-48 md:h-full object-cover"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`absolute top-2 right-2 ${
-              isFavorite ? 'text-red-500' : 'text-white hover:text-red-500'
-            } bg-black/20 backdrop-blur-sm hover:bg-black/40`}
-            onClick={() => onFavorite(car.id)}
-          >
-            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-          </Button>
           
           {car.featured && (
             <Badge className="absolute top-2 left-2" variant="default">
@@ -63,7 +52,7 @@ export function CarListItem({ car, onInquire, onFavorite, isFavorite }) {
                 <Badge variant="outline">{car.condition}</Badge>
               </div>
               
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-red-600">
                 {formatPrice(car.price)}
               </div>
 

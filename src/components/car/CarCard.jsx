@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Car, Fuel, Calendar, Settings, Heart, MessageSquare } from 'lucide-react'
+import { Car, Fuel, Calendar, Settings, MessageSquare } from 'lucide-react'
 
-export function CarCard({ car, onInquire, onFavorite, isFavorite }) {
-  const BASE_URL = 'http://localhost:8070';
-  
+export function CarCard({ car, onInquire }) {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL ;
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -32,19 +32,9 @@ export function CarCard({ car, onInquire, onFavorite, isFavorite }) {
           alt={`${car.make} ${car.model}`}
           className="w-full h-48 object-cover"
           onError={(e) => {
-            e.target.src = '/api/placeholder/400/250';
+            e.target.src = '/api/placeholder/400/250'
           }}
         />
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`absolute top-2 right-2 ${
-            isFavorite ? 'text-red-500' : 'text-white hover:text-red-500'
-          }`}
-          onClick={() => onFavorite(car.id)}
-        >
-          <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
-        </Button>
         
         {car.featured && (
           <Badge className="absolute top-2 left-2" variant="default">
@@ -60,7 +50,7 @@ export function CarCard({ car, onInquire, onFavorite, isFavorite }) {
           </span>
           <Badge variant="outline">{car.condition}</Badge>
         </CardTitle>
-        <div className="text-2xl font-bold text-blue-600">
+        <div className="text-2xl font-bold text-red-600">
           {formatPrice(car.price)}
         </div>
       </CardHeader>

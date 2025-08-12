@@ -1,5 +1,5 @@
 // API service for handling chat requests
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8070';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 class ChatAPI {
   constructor() {
@@ -19,6 +19,7 @@ class ChatAPI {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
         },
         body: JSON.stringify({
           thread_id: threadId,
@@ -187,6 +188,7 @@ class ChatAPI {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
         },
       });
       return response.ok;

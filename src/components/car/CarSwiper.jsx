@@ -98,7 +98,7 @@ export function CarSwiper({ cars, onCarInquiry }) {
             variant="outline"
             size="sm"
             onClick={prevSlide}
-            className="flex-shrink-0 h-10 w-10 p-0 z-10 shadow-md hover:shadow-lg transition-shadow self-center"
+            className="flex-shrink-0 h-10 w-10 p-0 z-10 shadow-md hover:shadow-lg transition-shadow self-center bg-gray-800 border-gray-600 hover:bg-gray-700 text-gray-300"
             disabled={cars.length <= carsPerView}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -115,12 +115,12 @@ export function CarSwiper({ cars, onCarInquiry }) {
         >
           {/* Left gradient overlay to indicate more content */}
           {cars.length > carsPerView && currentIndex > 0 && (
-            <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-white/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-black/80 to-transparent z-10 pointer-events-none" />
           )}
           
           {/* Right gradient overlay to indicate more content */}
           {cars.length > carsPerView && currentIndex < maxIndex && (
-            <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-white/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-black/80 to-transparent z-10 pointer-events-none" />
           )}
           
           <div 
@@ -151,7 +151,7 @@ export function CarSwiper({ cars, onCarInquiry }) {
             variant="outline"
             size="sm"
             onClick={nextSlide}
-            className="flex-shrink-0 h-10 w-10 p-0 z-10 shadow-md hover:shadow-lg transition-shadow self-center"
+            className="flex-shrink-0 h-10 w-10 p-0 z-10 shadow-md hover:shadow-lg transition-shadow self-center bg-gray-800 border-gray-600 hover:bg-gray-700 text-gray-300"
             disabled={cars.length <= carsPerView}
           >
             <ChevronRight className="h-4 w-4" />
@@ -168,8 +168,8 @@ export function CarSwiper({ cars, onCarInquiry }) {
               onClick={() => setCurrentIndex(index)}
               className={`w-2 h-2 rounded-full transition-all duration-200 ${
                 index === currentIndex 
-                  ? 'bg-blue-500 w-4' 
-                  : 'bg-gray-300 hover:bg-gray-400'
+                  ? 'bg-red-500 w-4' 
+                  : 'bg-gray-600 hover:bg-gray-500'
               }`}
               aria-label={`Go to page ${index + 1}`}
             />
@@ -180,11 +180,11 @@ export function CarSwiper({ cars, onCarInquiry }) {
       {/* Car counter for multiple cars */}
       <div className="text-center mt-2">
         {cars.length > carsPerView ? (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-400">
             Showing {currentIndex + 1}-{Math.min(currentIndex + carsPerView, cars.length)} of {cars.length} cars
           </span>
         ) : (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-400">
             {cars.length} {cars.length === 1 ? 'car' : 'cars'}
           </span>
         )}

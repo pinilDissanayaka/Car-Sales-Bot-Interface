@@ -10,7 +10,7 @@ import {
   Zap
 } from 'lucide-react'
 
-export function StatsPanel({ cars, favorites }) {
+export function StatsPanel({ cars }) {
   const totalValue = cars.reduce((sum, car) => sum + car.price, 0)
   const avgPrice = totalValue / cars.length
   const newCars = cars.filter(car => car.condition === 'New').length
@@ -39,14 +39,6 @@ export function StatsPanel({ cars, favorites }) {
       color: 'text-green-600',
       bgColor: 'bg-green-100',
       change: 'Market competitive'
-    },
-    {
-      title: 'Your Favorites',
-      value: favorites.length.toString(),
-      icon: Users,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      change: 'Personal collection'
     },
     {
       title: 'Featured Vehicles',

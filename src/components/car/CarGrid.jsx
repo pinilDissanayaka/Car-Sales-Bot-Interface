@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-export function CarGrid({ cars, onCarInquire, favorites, onToggleFavorite }) {
+export function CarGrid({ cars, onCarInquire }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedFilters, setSelectedFilters] = useState({
     make: '',
@@ -155,8 +155,6 @@ export function CarGrid({ cars, onCarInquire, favorites, onToggleFavorite }) {
             key={car.id}
             car={car}
             onInquire={onCarInquire}
-            onFavorite={onToggleFavorite}
-            isFavorite={favorites.includes(car.id)}
           />
         ))}
       </div>
