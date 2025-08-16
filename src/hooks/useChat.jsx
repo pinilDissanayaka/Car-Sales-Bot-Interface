@@ -14,6 +14,7 @@ export function useChat() {
   const [isTyping, setIsTyping] = useState(false)
   const [connectionError, setConnectionError] = useState(null)
   const [streamingMessageId, setStreamingMessageId] = useState(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [threadId] = useState(() => `thread_${Date.now()}`) // Generate unique thread ID
 
   const addMessage = useCallback((type, content, isStreaming = false, carData = null, vehicleImages = null, mapData = null) => {
@@ -56,13 +57,18 @@ export function useChat() {
       // Add user message
       addMessage('user', content)
       
-      // Show typing indicator
+      // Show typing indicator with processing message
       setIsTyping(true)
+      setIsProcessing(true)
       
       // Add initial empty bot message for streaming
       const botMessageId = addMessage('bot', '', true)
       setStreamingMessageId(botMessageId)
-      setIsTyping(false) // Hide typing indicator when streaming starts
+      
+      // Keep typing indicator for a minimum duration to show "working" message
+      setTimeout(() => {
+        setIsTyping(false)
+      }, 1500) // Show for 1.5 seconds minimum
       
       // Send message to API with streaming (using thread ID for context)
       const botResponse = await chatAPI.sendMessage(
@@ -70,43 +76,114 @@ export function useChat() {
         (chunk, fullResponse) => {
           // Update message with streaming content
           updateMessage(botMessageId, fullResponse, true)
+          // Hide typing once we start receiving content
+          setIsTyping(false)
         },
         threadId // Pass thread ID for conversation context
       )
       
       console.log('Bot response received:', botResponse);
-      
+
       // Extract response text, car data, and vehicle images from the response object
       let responseText = '';
       let carData = null;
       let vehicleImages = null;
       let mapData = null;
-      
+
+      // Helper to try extracting cars from various shapes
+      const extractCarsFromObject = (obj) => {
+        if (!obj || typeof obj !== 'object') return null;
+        
+        let cars = null;
+        if (Array.isArray(obj.carData)) cars = obj.carData;
+        else if (Array.isArray(obj.car_data)) cars = obj.car_data;
+        // some APIs return cars directly under `data` as an array
+        else if (Array.isArray(obj.data)) cars = obj.data;
+        else if (Array.isArray(obj.cars)) cars = obj.cars;
+        else if (obj.data && Array.isArray(obj.data.cars)) cars = obj.data.cars;
+        // other possible shapes
+        else if (Array.isArray(obj.results)) cars = obj.results;
+        
+        // Only return cars if the array is not empty
+        return (cars && cars.length > 0) ? cars : null;
+      };
+
       if (typeof botResponse === 'string') {
-        responseText = botResponse;
-      } else if (botResponse.response) {
-        // Check if response is a JSON string that needs parsing
-        if (typeof botResponse.response === 'string' && botResponse.response.startsWith('{')) {
+        // try to parse JSON string responses that embed structured data
+        const trimmed = botResponse.trim();
+        if (trimmed.startsWith('{')) {
           try {
-            const parsedResponse = JSON.parse(botResponse.response);
-            responseText = parsedResponse.response || botResponse.response;
-            carData = parsedResponse.car_data || null;
-            vehicleImages = parsedResponse.vehicle_images || null;
-            mapData = parsedResponse.map_data || null;
-            console.log('Parsed response text:', responseText);
-            console.log('Extracted car data:', carData);
-            console.log('Extracted vehicle images:', vehicleImages);
-            console.log('Extracted map data:', mapData);
-          } catch (error) {
-            console.warn('Failed to parse response JSON:', error);
-            responseText = botResponse.response;
+            const parsed = JSON.parse(trimmed);
+            carData = extractCarsFromObject(parsed);
+            vehicleImages = parsed.vehicle_images || parsed.vehicleImages || null;
+            mapData = parsed.map_data || parsed.mapData || null;
+            
+            // If we have car data, use a clean message
+            if (carData && Array.isArray(carData) && carData.length > 0) {
+              responseText = carData.length === 1 ? "Here's a car I found for you:" : `Here are ${carData.length} cars I found for you:`;
+            } else {
+              // Only show the response parameter, exclude thread_id and other metadata
+              responseText = parsed.response || parsed.message || parsed.reply || '';
+            }
+          } catch (err) {
+            // not JSON, treat as plain text
+            responseText = botResponse;
           }
         } else {
-          responseText = botResponse.response;
-          carData = botResponse.carData || botResponse.car_data || null;
-          vehicleImages = botResponse.vehicle_images || null;
-          mapData = botResponse.map_data || null;
+          responseText = botResponse;
         }
+      } else if (botResponse && typeof botResponse === 'object') {
+        // botResponse is already an object
+        // First try to extract car data from the response
+        carData = extractCarsFromObject(botResponse) || null;
+        vehicleImages = botResponse.vehicle_images || botResponse.vehicleImages || null;
+        mapData = botResponse.map_data || botResponse.mapData || null;
+
+        // If we have car data, use a clean message
+        if (carData && Array.isArray(carData) && carData.length > 0) {
+          responseText = carData.length === 1 ? "Here's a car I found for you:" : `Here are ${carData.length} cars I found for you:`;
+        } else {
+          // Show the original response text when no car data is found
+          responseText = botResponse.response || botResponse.message || botResponse.reply || '';
+        }
+
+        // If response text itself is a JSON string, try to parse nested data
+        if (!carData && typeof botResponse.response === 'string' && botResponse.response.trim().startsWith('{')) {
+          try {
+            const nested = JSON.parse(botResponse.response.trim());
+            carData = extractCarsFromObject(nested) || carData;
+            vehicleImages = vehicleImages || nested.vehicle_images || nested.vehicleImages || null;
+            mapData = mapData || nested.map_data || nested.mapData || null;
+            
+            // If we found car data in nested JSON, use clean message
+            if (carData && Array.isArray(carData) && carData.length > 0) {
+              responseText = carData.length === 1 ? "Here's a car I found for you:" : `Here are ${carData.length} cars I found for you:`;
+            } else {
+              // Only use the nested response if the data object is empty or doesn't exist
+              const hasEmptyData = !nested.data || (typeof nested.data === 'object' && Object.keys(nested.data).length === 0);
+              if (hasEmptyData) {
+                // Only show the response parameter, exclude thread_id and other metadata
+                responseText = nested.response || nested.message || nested.reply || '';
+              }
+            }
+          } catch (err) {
+            // ignore parse errors
+          }
+        }
+
+        // Fallback: if nothing found, try data.response
+        if (!carData && !responseText && botResponse.data && typeof botResponse.data.response === 'string') {
+          responseText = botResponse.data.response;
+          const dataCars = Array.isArray(botResponse.data.cars) && botResponse.data.cars.length > 0 ? botResponse.data.cars : null;
+          carData = carData || dataCars;
+          
+          // If we found car data, use clean message
+          if (carData && Array.isArray(carData) && carData.length > 0) {
+            responseText = carData.length === 1 ? "Here's a car I found for you:" : `Here are ${carData.length} cars I found for you:`;
+          }
+        }
+
+        console.log('Parsed responseText and extracted car/aux data:', { responseText, carData, vehicleImages, mapData });
       }
       
       // Handle car data, vehicle images, and map data if present
@@ -124,13 +201,17 @@ export function useChat() {
         updateMessage(botMessageId, responseText, false, null, null, mapData)
       } else {
         // Mark streaming as complete without additional data
-        updateMessage(botMessageId, responseText, false)
+        // Only show response if it has meaningful content
+        const finalResponseText = responseText || "I received your message.";
+        updateMessage(botMessageId, finalResponseText, false)
       }
       
       setStreamingMessageId(null)
+      setIsProcessing(false)
       
     } catch (error) {
       setIsTyping(false)
+      setIsProcessing(false)
       setStreamingMessageId(null)
       setConnectionError(error.message)
       
@@ -155,6 +236,7 @@ export function useChat() {
       }
     ])
     setIsTyping(false)
+    setIsProcessing(false)
     setConnectionError(null)
     setStreamingMessageId(null)
   }, [])
@@ -162,6 +244,7 @@ export function useChat() {
   return {
     messages,
     isTyping,
+    isProcessing,
     connectionError,
     streamingMessageId,
     sendMessage,

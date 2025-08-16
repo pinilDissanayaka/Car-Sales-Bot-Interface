@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { ApiCarCard } from './ApiCarCard'
 
 export function CarSwiper({ cars, onCarInquiry }) {
+  console.log('CarSwiper received cars:', cars); // Debug log
+  
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
@@ -12,6 +14,7 @@ export function CarSwiper({ cars, onCarInquiry }) {
   const swiperRef = useRef(null)
 
   if (!cars || cars.length === 0) {
+    console.log('CarSwiper: No cars to display'); // Debug log
     return null
   }
 

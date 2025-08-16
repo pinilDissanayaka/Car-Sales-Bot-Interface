@@ -149,14 +149,17 @@ export function CarGrid({ cars, onCarInquire }) {
       </div>
 
       {/* Car Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCars.map(car => (
-          <CarCard
-            key={car.id}
-            car={car}
-            onInquire={onCarInquire}
-          />
-        ))}
+      <div className="car-cards-container">
+        <div className="car-cards-grid">
+          {filteredCars.map((car, index) => (
+            <div key={car.id} style={{ animationDelay: `${index * 0.1}s` }}>
+              <CarCard
+                car={car}
+                onInquire={onCarInquire}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {filteredCars.length === 0 && (

@@ -15,7 +15,7 @@ class ChatAPI {
    */
   async sendMessage(message, onChunk = null, threadId = "8") {
     try {
-      const response = await fetch(`${this.baseURL}/api/v1/chat/ask`, {
+      const response = await fetch(`${this.baseURL}/chat/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ class ChatAPI {
         },
         body: JSON.stringify({
           thread_id: threadId,
-          question: message,
+          message: message,
         }),
       });
 
@@ -115,21 +115,30 @@ class ChatAPI {
 
       // Handle non-streaming response
       const data = await response.json();
-      
-      // Handle ChatResponse format: { response: str, car_data: List[Dict], vehicle_images: List[str] }
-      if (data && typeof data === 'object' && data.response) {
-        const result = { response: data.response };
-        
-        if (data.car_data && Array.isArray(data.car_data) && data.car_data.length > 0) {
+      console.log('Full API response:', data); // Debug log
+
+      // Accept object responses even if `response` field is missing.
+      if (data && typeof data === 'object') {
+        const result = { response: data.response || data.message || data.reply || '' };
+
+        // Extract cars from common locations
+        if (data.data && Array.isArray(data.data.cars) && data.data.cars.length > 0) {
+          result.carData = data.data.cars;
+          console.log('Car data received (data.cars):', data.data.cars.length);
+        } else if (Array.isArray(data.carData) && data.carData.length > 0) {
+          result.carData = data.carData;
+          console.log('Car data received (carData):', data.carData.length);
+        } else if (Array.isArray(data.car_data) && data.car_data.length > 0) {
           result.carData = data.car_data;
-          console.log('Car data received:', data.car_data);
+          console.log('Car data received (car_data):', data.car_data.length);
         }
-        
-        if (data.vehicle_images && Array.isArray(data.vehicle_images) && data.vehicle_images.length > 0) {
+
+        if (Array.isArray(data.vehicle_images) && data.vehicle_images.length > 0) {
           result.vehicle_images = data.vehicle_images;
-          console.log('Vehicle images received:', data.vehicle_images);
+          console.log('Vehicle images received:', data.vehicle_images.length);
         }
-        
+
+        console.log('Final result object:', result); // Debug log
         return result;
       }
       
@@ -137,20 +146,25 @@ class ChatAPI {
       if (typeof data === 'string') {
         try {
           const parsedData = JSON.parse(data);
-          if (parsedData.response) {
-            const result = { response: parsedData.response };
-            if (parsedData.car_data && Array.isArray(parsedData.car_data) && parsedData.car_data.length > 0) {
-              result.carData = parsedData.car_data;
-              console.log('Car data received:', parsedData.car_data);
-            }
-            if (parsedData.vehicle_images && Array.isArray(parsedData.vehicle_images) && parsedData.vehicle_images.length > 0) {
-              result.vehicle_images = parsedData.vehicle_images;
-              console.log('Vehicle images received:', parsedData.vehicle_images);
-            }
-            return result;
+          const result = { response: parsedData.response || parsedData.message || parsedData.reply || '' };
+
+          if (parsedData.data && Array.isArray(parsedData.data.cars) && parsedData.data.cars.length > 0) {
+            result.carData = parsedData.data.cars;
+            console.log('Car data received from parsed string (data.cars):', parsedData.data.cars.length);
+          } else if (Array.isArray(parsedData.carData) && parsedData.carData.length > 0) {
+            result.carData = parsedData.carData;
+            console.log('Car data received from parsed string (carData):', parsedData.carData.length);
+          } else if (Array.isArray(parsedData.car_data) && parsedData.car_data.length > 0) {
+            result.carData = parsedData.car_data;
+            console.log('Car data received from parsed string (car_data):', parsedData.car_data.length);
           }
-          // If it's a JSON string but not in expected format, return as is
-          return { response: data };
+
+          if (Array.isArray(parsedData.vehicle_images) && parsedData.vehicle_images.length > 0) {
+            result.vehicle_images = parsedData.vehicle_images;
+            console.log('Vehicle images received from parsed string:', parsedData.vehicle_images.length);
+          }
+
+          return result;
         } catch {
           // If it's not valid JSON, return as plain text
           return { response: data };
